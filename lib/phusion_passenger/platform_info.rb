@@ -214,7 +214,7 @@ public
 		else
 			raise ArgumentError,"Unsupported language '#{language}'"
 		end
-		filename = File.join("/tmp/passenger-compile-check-#{Process.pid}.c")
+		filename = File.join(tmp_dir+"/passenger-compile-check-#{Process.pid}.c")
 		File.open(filename, "w") do |f|
 			f.puts(source)
 		end

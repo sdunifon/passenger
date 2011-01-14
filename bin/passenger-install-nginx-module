@@ -404,22 +404,26 @@ private
 	def pcre_is_installed?
 		if @pcre_is_installed.nil?
 			@pcre_is_installed = begin
-				File.open('/tmp/passenger-check.c', 'w') do |f|
+				File.open(tmp_dir+'/passenger-check.c', 'w') do |f|
 					f.puts("#include <pcre.h>")
 				end
-				Dir.chdir('/tmp') do
+				Dir.chdir(tmp_dir) do
 					# Nginx checks for PCRE in multiple places...
 					system("(gcc -I/usr/local/include -I/usr/include/pcre " <<
 						"-I/usr/pkg/include -I/opt/local/include " <<
 						"-c passenger-check.c) >/dev/null 2>/dev/null")
 				end
 			ensure
-				File.unlink('/tmp/passenger-check.c') rescue nil
-				File.unlink('/tmp/passenger-check.o') rescue nil
+				File.unlink(tmp_dir + '/passenger-check.c') rescue nil
+				File.unlink(tmp_dir + '/passenger-check.o') rescue nil
 			end
 		end
 		return @pcre_is_installed
 	end
+	
+	def tmp_dir
+	  @tmp_dir || '/tmp'
+  end
 end
 
 options = {}
@@ -458,6 +462,10 @@ parser = OptionParser.new do |opts|
 	        "#{' ' * 37}installer to ask interactively either.") do |flags|
 		options[:extra_configure_flags] = flags
 	end
+	
+	opts.on("--tmp-dir=DIR",String, 'Specify a temporary directory to use instead of /tmp') do |tmp_dir|
+	  options[:tmp_dir] = tmp_dir
+  end
 end
 begin
 	parser.parse!
